@@ -51,8 +51,14 @@ bool isPrime(int number) {
   if (number <= 1)
     return false;
 
-  for (int i = 2; i < sqrt(number); i++)
-    if (number % i == 0)
+  if (number == 2 || number == 3)
+    return true;
+
+  if (number % 2 == 0 || number % 3 == 0)
+    return false;
+
+  for (int i = 5; i <= sqrt(number); i += 6)
+    if (number % i == 0 || number % (i + 2) == 0)
       return false;
 
   return true;
@@ -79,8 +85,10 @@ int main() {
   clock_t startFunction, endFunction;
 
   double tExecucao, tGerar, tOrdenarDesordenado, tOrdenarOrdenado,
-      tPrimosDesordenado, tPrimosOrdenado, tTotal, tOrdenarPercent,
-      tPrimosPercent, tMedia;
+      tPrimosDesordenado, tPrimosOrdenado, tTotal, tGerarPercent,
+      tOrdenarPercent, tPrimosPercent, tMedia;
+
+  double tGerarTotal = 0, tOrdenarTotal = 0, tPrimosTotal = 0;
 
   int arr[SIZE];
 
@@ -92,6 +100,7 @@ int main() {
     initializeArray(arr);
     endFunction = clock();
     tGerar = ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
+    tGerarTotal += tGerar;
 
     // Time to count primes in unsorted array
     startFunction = clock();
@@ -99,6 +108,7 @@ int main() {
     endFunction = clock();
     tPrimosDesordenado =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
+    tPrimosTotal += tPrimosDesordenado;
 
     // Time to sort array
     startFunction = clock();
@@ -106,6 +116,7 @@ int main() {
     endFunction = clock();
     tOrdenarDesordenado =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
+    tOrdenarTotal += tOrdenarDesordenado;
 
     // Time to count primes in sorted array
     startFunction = clock();
@@ -113,6 +124,7 @@ int main() {
     endFunction = clock();
     tPrimosOrdenado =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
+    tPrimosTotal += tPrimosOrdenado;
 
     // Time to re-sort array
     startFunction = clock();
@@ -120,6 +132,7 @@ int main() {
     endFunction = clock();
     tOrdenarOrdenado =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
+    tOrdenarTotal += tOrdenarOrdenado;
 
     end = clock();
     tExecucao = ((double)(end - start) / CLOCKS_PER_SEC) * 1000.0;
@@ -138,8 +151,9 @@ int main() {
 
   endTotal = clock();
   tTotal = ((double)(endTotal - startTotal) / CLOCKS_PER_SEC) * 1000.0;
-  tOrdenarPercent = ((tOrdenarOrdenado + tOrdenarDesordenado) / tTotal) * 100.0;
-  tPrimosPercent = ((tPrimosOrdenado + tPrimosDesordenado) / tTotal) * 100.0;
+  tGerarPercent = (tGerarTotal / tTotal) * 100.0;
+  tOrdenarPercent = (tOrdenarTotal / tTotal) * 100.0;
+  tPrimosPercent = (tPrimosTotal / tTotal) * 100.0;
   tMedia = tTotal / REPETITION;
 
   printf("TTotal: %6.4f ms\n\n", tTotal);
@@ -147,10 +161,11 @@ int main() {
   // Statistic
   printf("Estatística\n"
          "n: %d\n"
+         "%%TGerar: %3.2f%%\n"
          "%%TOrdenar: %3.2f%%\n"
          "%%TPrimos: %3.2f%%\n"
          "TMedia: %6.4f ms\n",
-         SIZE, tOrdenarPercent, tPrimosPercent, tMedia);
+         SIZE, tGerarPercent, tOrdenarPercent, tPrimosPercent, tMedia);
 
   return 0;
 }
