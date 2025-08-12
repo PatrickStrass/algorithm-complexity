@@ -16,6 +16,7 @@ void swap(int *x, int *y) {
   *x ^= *y ^= *x ^= *y;
 }
 
+// Hoare partition
 int partition(int *array, int left, int right) {
   int pivot = array[left];
 
@@ -57,14 +58,12 @@ bool isPrime(int number) {
   return true;
 }
 
-void printPrimeNumbers(int *array) {
-  for (int i = 0; i < SIZE; i++) {
-    if (isPrime(array[i])) {
-      // printf("%d ", array[i]);
-    }
-  }
+void countPrimeNumbers(int *array) {
+  int count = 0;
 
-  // printf("\n");
+  for (int i = 0; i < SIZE; i++)
+    if (isPrime(array[i]))
+      count++;
 }
 
 void initializeArray(int *array) {
@@ -80,7 +79,8 @@ int main() {
   clock_t startFunction, endFunction;
 
   double tExecucao, tGerar, tOrdenarDesordenado, tOrdenarOrdenado,
-      tPrimosDesordenado, tPrimosOrdenado, tTotal;
+      tPrimosDesordenado, tPrimosOrdenado, tTotal, tOrdenarPercent,
+      tPrimosPercent, tMedia;
 
   int arr[SIZE];
 
@@ -93,28 +93,28 @@ int main() {
     endFunction = clock();
     tGerar = ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
 
-    // Tempo para exibir primos no array desordenado
+    // Time to count primes in unsorted array
     startFunction = clock();
-    printPrimeNumbers(arr);
+    countPrimeNumbers(arr);
     endFunction = clock();
     tPrimosDesordenado =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
 
-    // Tempo para ordenar array desordenado
+    // Time to sort array
     startFunction = clock();
     quickSort(arr, 0, SIZE - 1);
     endFunction = clock();
     tOrdenarDesordenado =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
 
-    // Tempo para exibir primos no array ordenado
+    // Time to count primes in sorted array
     startFunction = clock();
-    printPrimeNumbers(arr);
+    countPrimeNumbers(arr);
     endFunction = clock();
     tPrimosOrdenado =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
 
-    // Tempo para ordenar array ordenado
+    // Time to re-sort array
     startFunction = clock();
     quickSort(arr, 0, SIZE - 1);
     endFunction = clock();
@@ -124,7 +124,7 @@ int main() {
     end = clock();
     tExecucao = ((double)(end - start) / CLOCKS_PER_SEC) * 1000.0;
 
-    // Métricas
+    // Metrics
     printf("Cenário %d\n"
            "Execução: %6.4f ms\n"
            "TGerar: %6.4f ms\n"
@@ -138,8 +138,19 @@ int main() {
 
   endTotal = clock();
   tTotal = ((double)(endTotal - startTotal) / CLOCKS_PER_SEC) * 1000.0;
+  tOrdenarPercent = ((tOrdenarOrdenado + tOrdenarDesordenado) / tTotal) * 100.0;
+  tPrimosPercent = ((tPrimosOrdenado + tPrimosDesordenado) / tTotal) * 100.0;
+  tMedia = tTotal / REPETITION;
 
-  printf("TTotal: %6.4f ms\n", tTotal);
+  printf("TTotal: %6.4f ms\n\n", tTotal);
+
+  // Statistic
+  printf("Estatística\n"
+         "n: %d\n"
+         "%%TOrdenar: %3.2f%%\n"
+         "%%TPrimos: %3.2f%%\n"
+         "TMedia: %6.4f ms\n",
+         SIZE, tOrdenarPercent, tPrimosPercent, tMedia);
 
   return 0;
 }
