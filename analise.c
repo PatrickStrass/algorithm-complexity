@@ -4,10 +4,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define SIZE 100000
-#define REPETITION 10
+#define SIZE 1000
+#define ITERATIONS 10
 #define MIN_VALUE 0
 #define MAX_VALUE 1500
+#define ORDERED 1
 
 void swap(int *x, int *y) {
   if (x == y)
@@ -73,99 +74,91 @@ void countPrimeNumbers(int *array) {
 }
 
 void initializeArray(int *array) {
-  srand(time(NULL));
+  for (int i = MIN_VALUE; i < SIZE; i++) {
+    srand(time(NULL));
 
-  for (int i = 0; i < SIZE; i++)
+#if ORDERED == 0
     array[i] = rand() % (MAX_VALUE + MIN_VALUE);
+#else
+    array[i] = i;
+#endif
+  }
 }
 
 int main() {
-  clock_t start, end;
-  clock_t startTotal, endTotal;
   clock_t startFunction, endFunction;
 
-  double tExecucao, tGerar, tOrdenarDesordenado, tOrdenarOrdenado,
-      tPrimosDesordenado, tPrimosOrdenado, tTotal, tGerarPercent,
-      tOrdenarPercent, tPrimosPercent, tMedia;
+  double times[7]; // 0 - tGenerate; 1 - tSort; 2 - tPrimes; 3 -
+                   // TTotal; 4 - tGenerateTotal; 5 - tSortTotal; 6 -
+                   // tPrimesTotal
 
-  double tGerarTotal = 0, tOrdenarTotal = 0, tPrimosTotal = 0;
+  double tGeneratePercent, tSortPercent, tPrimesPercent, tAverage;
 
+  FILE *csv;
   int arr[SIZE];
 
-  startTotal = clock();
-  for (int i = 0; i < REPETITION; i++) {
-    start = clock();
+  csv = fopen("result.csv", "a+");
 
+  if (csv == NULL) {
+    printf("Error to open file");
+    return 1;
+  }
+
+  fprintf(csv, "Scenario ; Execution ; TGenerate (ms) ; TSort (ms) ; TPrimes "
+               "(ms) ; TTotal (ms) ; %%TSort ; %%TPrimes ;\n");
+
+  for (int i = 0; i < ITERATIONS; i++) {
     startFunction = clock();
     initializeArray(arr);
     endFunction = clock();
-    tGerar = ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
-    tGerarTotal += tGerar;
-
-    // Time to count primes in unsorted array
-    startFunction = clock();
-    countPrimeNumbers(arr);
-    endFunction = clock();
-    tPrimosDesordenado =
+    times[0] =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
-    tPrimosTotal += tPrimosDesordenado;
+    times[4] += times[0];
 
-    // Time to sort array
     startFunction = clock();
     quickSort(arr, 0, SIZE - 1);
     endFunction = clock();
-    tOrdenarDesordenado =
+    times[1] =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
-    tOrdenarTotal += tOrdenarDesordenado;
+    times[5] += times[1];
 
-    // Time to count primes in sorted array
     startFunction = clock();
     countPrimeNumbers(arr);
     endFunction = clock();
-    tPrimosOrdenado =
+    times[2] =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
-    tPrimosTotal += tPrimosOrdenado;
+    times[6] += times[2];
 
-    // Time to re-sort array
-    startFunction = clock();
-    quickSort(arr, 0, SIZE - 1);
-    endFunction = clock();
-    tOrdenarOrdenado =
-        ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
-    tOrdenarTotal += tOrdenarOrdenado;
+    times[3] = times[0] + times[1] + times[2];
+    tSortPercent = (times[1] / times[3]) * 100.0;
+    tPrimesPercent = (times[2] / times[3]) * 100.0;
+    tAverage += times[3];
 
-    end = clock();
-    tExecucao = ((double)(end - start) / CLOCKS_PER_SEC) * 1000.0;
+    printf("Scenario %d\n"
+           "TTotal: %f ms\n"
+           "TGenerate: %f ms\n"
+           "TSort: %f ms\n"
+           "TPrimes: %f ms\n"
+           "%%TSort: %3.2f%%\n"
+           "%%TPrimes: %3.2f%%\n\n",
+           i + 1, times[3], times[0], times[1], times[2], tSortPercent,
+           tPrimesPercent);
 
-    // Metrics
-    printf("Cenário %d\n"
-           "Execução: %6.4f ms\n"
-           "TGerar: %6.4f ms\n"
-           "TOrdenar (desordenado): %6.4f ms\n"
-           "TOrdenar (ordenado): %6.4f ms\n"
-           "TPrimos (desordenado): %6.4f ms\n"
-           "TPrimos (ordenado): %6.4f ms\n\n",
-           i + 1, tExecucao, tGerar, tOrdenarDesordenado, tOrdenarOrdenado,
-           tPrimosDesordenado, tPrimosOrdenado);
+    fprintf(csv, "S%d ; %dk%s ; %f ; %f ; %f ; %f ; %3.2f%% ; %3.2f%% ;\n",
+            i + 1, SIZE / 1000, (ORDERED ? " *sorted" : ""), times[0], times[1],
+            times[2], times[3], tSortPercent, tPrimesPercent);
   }
 
-  endTotal = clock();
-  tTotal = ((double)(endTotal - startTotal) / CLOCKS_PER_SEC) * 1000.0;
-  tGerarPercent = (tGerarTotal / tTotal) * 100.0;
-  tOrdenarPercent = (tOrdenarTotal / tTotal) * 100.0;
-  tPrimosPercent = (tPrimosTotal / tTotal) * 100.0;
-  tMedia = tTotal / REPETITION;
+  fprintf(csv, "\n");
 
-  printf("TTotal: %6.4f ms\n\n", tTotal);
+  tAverage /= ITERATIONS;
 
-  // Statistic
-  printf("Estatística\n"
-         "n: %d\n"
-         "%%TGerar: %3.2f%%\n"
-         "%%TOrdenar: %3.2f%%\n"
-         "%%TPrimos: %3.2f%%\n"
-         "TMedia: %6.4f ms\n",
-         SIZE, tGerarPercent, tOrdenarPercent, tPrimosPercent, tMedia);
+  printf("Statistic\n"
+         "Execution: %d%s\n"
+         "TAverage: %f ms\n",
+         SIZE, (ORDERED ? " *sorted" : ""), tAverage);
+
+  fclose(csv);
 
   return 0;
 }
