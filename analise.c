@@ -4,49 +4,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define SIZE 1000
+#define SIZE 100000
 #define ITERATIONS 10
 #define MIN_VALUE 0
 #define MAX_VALUE 1500
-#define ORDERED 1
+#define ORDERED 0
 
-void swap(int *x, int *y) {
-  if (x == y)
-    return;
-
-  *x ^= *y ^= *x ^= *y;
-}
-
-// Hoare partition
-int partition(int *array, int left, int right) {
-  int pivot = array[left];
-
-  int i = left + 1;
-  int j = right;
-  while (i <= j) {
-    while (i <= j && array[i] <= pivot)
-      i++;
-
-    while (i <= j && array[j] > pivot)
-      j--;
-
-    if (i < j)
-      swap(&array[i], &array[j]);
-  }
-
-  swap(&array[left], &array[j]);
-
-  return j;
-}
-
-void quickSort(int *array, int left, int right) {
-  if (left < right) {
-    int pivotIndex = partition(array, left, right);
-
-    quickSort(array, left, pivotIndex - 1);
-    quickSort(array, pivotIndex + 1, right);
-  }
-}
+int comp(const void *a, const void *b) { return (*(int *)a - *(int *)b); }
 
 bool isPrime(int number) {
   if (number <= 1)
@@ -74,8 +38,9 @@ void countPrimeNumbers(int *array) {
 }
 
 void initializeArray(int *array) {
+  srand(time(NULL));
+
   for (int i = MIN_VALUE; i < SIZE; i++) {
-    srand(time(NULL));
 
 #if ORDERED == 0
     array[i] = rand() % (MAX_VALUE + MIN_VALUE);
@@ -116,7 +81,7 @@ int main() {
     times[4] += times[0];
 
     startFunction = clock();
-    quickSort(arr, 0, SIZE - 1);
+    qsort(arr, SIZE, sizeof(arr[0]), comp);
     endFunction = clock();
     times[1] =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
