@@ -94,7 +94,7 @@ int main() {
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
     times[6] += times[2];
 
-    times[3] = times[0] + times[1] + times[2];
+    times[5] = times[0] + times[1] + times[2];
     tSortPercent = (times[1] / times[3]) * 100.0;
     tPrimesPercent = (times[2] / times[3]) * 100.0;
     tAverage += times[3];
