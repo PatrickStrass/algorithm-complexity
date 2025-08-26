@@ -3,11 +3,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define SIZE 10000000
+#define SIZE 500000
 #define ITERATIONS 10
 #define MIN_VALUE 0
 #define MAX_VALUE 1500
 #define ORDERED 0
+
+// int compare(const void *a, const void *b) { return (*(int *)a - *(int *)b); }
 
 #define SWAP(a, b)                                                             \
   do {                                                                         \
@@ -157,6 +159,7 @@ int main() {
 
     startFunction = clock();
     quickSort(arr, 0, SIZE - 1);
+    // qsort(arr, SIZE, sizeof(int), compare);
     endFunction = clock();
 
     times[1] =
