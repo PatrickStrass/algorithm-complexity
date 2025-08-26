@@ -3,14 +3,16 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define SIZE 500000
+#define SIZE 10000000
 #define ITERATIONS 10
 #define MIN_VALUE 0
 #define MAX_VALUE 1500
-#define ORDERED 1
+#define ORDERED 0
 
 #define SWAP(a, b)                                                             \
   do {                                                                         \
+    if (&(a) == &(b))                                                          \
+      break;                                                                   \
     (a) ^= (b);                                                                \
     (b) ^= (a);                                                                \
     (a) ^= (b);                                                                \
@@ -30,34 +32,40 @@ void shellSort(int *arr, int n) {
   }
 }
 
-// Hoare partition
-int partition(int *array, int left, int right) {
-  int pivot = array[left];
+int partition(int *arr, int left, int right) {
+  int pivot = arr[left];
 
   int i = left + 1;
   int j = right;
   while (i <= j) {
-    while (i <= j && array[i] <= pivot)
+    while (i <= j && arr[i] <= pivot)
       i++;
 
-    while (i <= j && array[j] > pivot)
+    while (i <= j && arr[j] > pivot)
       j--;
 
     if (i < j)
-      SWAP(array[i], array[j]);
+      SWAP(arr[i], arr[j]);
   }
 
-  SWAP(array[left], array[j]);
+  SWAP(arr[left], arr[j]);
 
   return j;
 }
 
 void quickSort(int *arr, int left, int right) {
-  if (left < right) {
+  while (left < right) {
     int pivotIndex = partition(arr, left, right);
 
-    quickSort(arr, left, pivotIndex - 1);
-    quickSort(arr, pivotIndex + 1, right);
+    if (pivotIndex - left < right - pivotIndex) {
+      quickSort(arr, left, pivotIndex - 1);
+      left = pivotIndex + 1;
+    }
+
+    else {
+      quickSort(arr, pivotIndex + 1, right);
+      right = pivotIndex - 1;
+    }
   }
 }
 
