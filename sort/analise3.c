@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define SIZE 500000
-#define ITERATIONS 10
+#define SIZE 1000
+#define ITERATIONS 2
 #define MIN_VALUE 0
 #define MAX_VALUE 1500
 #define ORDERED 0
 
-// int compare(const void *a, const void *b) { return (*(int *)a - *(int *)b); }
+int compare(const void *a, const void *b) { return (*(int *)a - *(int *)b); }
 
 #define SWAP(a, b)                                                             \
   do {                                                                         \
@@ -145,11 +145,11 @@ int main() {
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
 
     printf("%f ms\n", times[0]);
-    fprintf(csv, "%dk ; %f ms\n", SIZE / 1000, times[0]);
+    fprintf(csv, "%dk ; %f\n", SIZE / 1000, times[0]);
   }
 
   printf("\n");
-  fprintf(csv, "\n");
+  fprintf(csv, "%s\n\n", (ITERATIONS > 1 ? "Average:" : ""));
 
   fprintf(csv, "Quick Sort %s ; \nInput ; Execution time (ms) ;\n",
           (ORDERED ? "- sorted" : ""));
@@ -158,19 +158,19 @@ int main() {
     initializeArray(arr);
 
     startFunction = clock();
-    quickSort(arr, 0, SIZE - 1);
-    // qsort(arr, SIZE, sizeof(int), compare);
+    // quickSort(arr, 0, SIZE - 1);
+    qsort(arr, SIZE, sizeof(int), compare);
     endFunction = clock();
 
     times[1] =
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
 
     printf("%f ms\n", times[1]);
-    fprintf(csv, "%dk ; %f ms\n", SIZE / 1000, times[1]);
+    fprintf(csv, "%dk ; %f\n", SIZE / 1000, times[1]);
   }
 
   printf("\n");
-  fprintf(csv, "\n");
+  fprintf(csv, "%s\n\n", (ITERATIONS > 1 ? "Average:" : ""));
 
   fprintf(csv, "Merge Sort %s ; \nInput ; Execution time (ms) ;\n",
           (ORDERED ? "- sorted" : ""));
@@ -186,13 +186,13 @@ int main() {
         ((double)(endFunction - startFunction) / CLOCKS_PER_SEC) * 1000.0;
 
     printf("%f ms\n", times[2]);
-    fprintf(csv, "%dk ; %f ms\n", SIZE / 1000, times[2]);
+    fprintf(csv, "%dk ; %f\n", SIZE / 1000, times[2]);
   }
 
   printf("\n");
   printf("Input: %dk\nIterations: %d\nSorted: %s\n\n", SIZE / 1000, ITERATIONS,
          ORDERED ? " true" : " false");
-  fprintf(csv, "\n");
+  fprintf(csv, "%s\n\n", (ITERATIONS > 1 ? "Average:" : ""));
 
   fclose(csv);
 
